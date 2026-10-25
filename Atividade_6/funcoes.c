@@ -43,34 +43,33 @@ int remove_lista_inicio(Lista* li) {
 }
 ///////////////////////////////////////////////////////////
 int remove_lista_final(Lista* li) {
-    if (li == NULL)
+    if (li == NULL || *li == NULL)
         return 0;
-    if ((*li) == NULL)
-        return 0;           /* lista vazia */
-    if ((*li) == (*li)->prox) {   /* elemento unico: a lista fica vazia */
+
+    if (*li == (*li)->prox) {
         free(*li);
         *li = NULL;
         return 1;
     }
-    Elem *ant = NULL, *no = *li;
-    while (no->prox != (*li)) {   /* procura o ultimo, guardando o no */
+
+    Elem* ant = NULL;
+    Elem* no = *li;
+
+    while (no->prox != *li) {
         ant = no;
         no = no->prox;
     }
 
-
-    if (no->prox == *li)
-        return remove_lista_final(li);
-
-    ant->prox = no->prox;         /* o penultimo passa a apontar para o inicio */
+    ant->prox = no->prox;
     free(no);
+
     return 1;
-}
+} 
 ///////////////////////////////////////////////////////////
 // 1
 
 
-int imprimir_lista(Lista* li){
+void imprimir_lista(Lista* li){
     if(li == NULL)  return 0;
     Elem *no = li;
     if (no == NULL) return 0;
@@ -79,25 +78,29 @@ int imprimir_lista(Lista* li){
         no = no->prox;
     }
     while(no != li);
-    return 1;
+
+    printf("\n");
 }
 
 //2
 
-int maior_matricula(Lista* li, int *mat){
-    if(li == NULL || *li == NULL || mat == NULL)  return 0;
-    Elem *no = li;
+int maior_matricula(Lista* li, int *mat) {
+    if (li == NULL || *li == NULL || mat == NULL)
+        return 0;
 
+    Elem* no = *li;
     int maior = no->dados.matricula;
-    do{
-        if (maior < no->dados.matricula) maior = no->dados.matricula;
+
+    do {
+        if (no->dados.matricula > maior)
+            maior = no->dados.matricula;
+
         no = no->prox;
-    }
-    while(no != li);
+    } while (no != *li);
+
     *mat = maior;
     return 1;
 }
-
 // 3 
 
 /// Com defeito
@@ -118,25 +121,29 @@ return cont;
 /// Corrigido
 
 int conta_aprovados(Lista* li){
-int cont = 0;
-Elem *no = *li;
-do{ 
-    /*
-     O uso da função "do ... while ... faz sentido dado que como 'no' começa com *li
-     e se começássemos com a condição de inicio, que DEVE SER (no != *li).
-    */
-    float media = (no->dados.n1 + no->dados.n2 + no->dados.n3) / 3;
-        if(media >= 7.0){
+    if (li == NULL || *li == NULL) return 0;
+
+    int cont = 0;
+    Elem *no = *li;
+    do{ 
+        /*
+        O uso da função "do ... while ... faz sentido dado que como 'no' começa com *li
+        e se começássemos com a condição de inicio, que DEVE SER (no != *li).
+        */
+        float media = (no->dados.n1 + no->dados.n2 + no->dados.n3) / 3.0f;
+
+        if(media >= 7.0f){
             cont++;
         }
-        no = no->prox;
-}
-while(no != *li);
 
-// A mudança de no != NULL para li é mais recomendável, pois a condição de parada nesses
-// casas de lista encadeada circular deve ser no != *li que seria o nosso 'primeiro termo' 
+    no = no->prox;}
 
-return cont;
+    while(no != *li);
+
+    // A mudança de no != NULL para li é mais recomendável, pois a condição de parada nesses
+    // casas de lista encadeada circular deve ser no != *li que seria o nosso 'primeiro termo' 
+
+    return cont;
 }
 
 // 4
@@ -169,30 +176,31 @@ int busca_ciclica(Lista* li, int k, struct aluno *al){
 }
 
 // 5
+int remove_lista_pos(Lista* li, int pos) {
+    if (li == NULL || *li == NULL || pos < 1)
+        return 0;
 
-int remove_lista_pos(Lista* li, int pos){
-    if (li == NULL || *li == NULL || pos <= 0) return 0;
-
-    Elem *no = *li, *rem;
-
-    if (pos == 1){
+    if (pos == 1)
         return remove_lista_inicio(li);
-    }
 
+    Elem* ant = *li;
     int i = 1;
 
-    while(i < pos - 1 && no->prox != *li){
-        no = no->prox;
+    while (i < pos - 1 && ant->prox != *li) {
+        ant = ant->prox;
         i++;
     }
 
-     if (no->prox == *li)
-        return 0;
+    if (ant->prox == *li)
+        return 0;  // Posição maior que o tamanho.
 
-    Elem* removido = no->prox;
-    no->prox = removido->prox;
-    free(removido);
+    Elem* no = ant->prox;
 
+    if (no->prox == *li)
+        return remove_lista_final(li);
+
+    ant->prox = no->prox;
+    free(no);
     return 1;
 }
 
